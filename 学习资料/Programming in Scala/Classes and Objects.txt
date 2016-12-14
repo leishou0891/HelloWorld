@@ -1,0 +1,96 @@
+4.1 Classes, fields, and methods 
+
+A class is a blueprint for objects. Once you define a class, you can create objects from the class blueprint with the keyword new. For example, given the class definition:
+  class ChecksumAccumulator {
+    // class definition goes here
+  }
+
+ 
+You can create ChecksumAccumulator objects with:
+  new ChecksumAccumulator
+
+Fields, which you define with either val or var, are variables that refer to objects. Methods, which you define with def, contain executable code. The fields hold the state, or data, of an object, whereas the methods use that data to do the computational work of the object. When you instantiate a class, the runtime sets aside some memory to hold the image of that object's state—i.e., the content of its variables.
+
+
+类成员属性，默认是public的，可以用private来声明私有化。
+
+One important characteristic of method parameters in Scala is that they are vals, not var  方法的参数都是val而不是var，换言之，方法的参数在方法里面是不能被重新赋值的。（不过不代表这些参数的实例属性不能被重新赋值）
+
+In the absence of any explicit return statement, a Scala method returns the last value computed by the method.
+方法的返回值，如果没有显式的return，那么就是最后一个语句的取值。这一点跟ruby是一样的。
+
+scala推荐的做法是尽量避免显式的，包括多个地方使用return语句。它推崇把方法表达成一个表达式那么简单，返回一个值就可以了。这样就要求函数设计得足够小。
+
+ Another shorthand for methods is that you can leave off the curly braces if a method computes only a single result expression. If the result expression is short, it can even be placed on the same line as the def itself. With these changes, class ChecksumAccumulator looks like this: 
+  class ChecksumAccumulator {
+    private var sum = 0
+    def add(b: Byte): Unit = sum += b
+    def checksum(): Int = ~(sum & 0xFF) + 1
+  }
+
+Another way to express such methods is to leave off the result type and the equals sign, and enclose the body of the method in curly braces. In this form, the method looks like a procedure, a method that is executed only for its side effects. The add method in Listing 4.1 illustrates this style:
+add方法由于是不带返回类型的，所以它可以换成另一种写法，用大括号包装，大括号前面不要带==，就相当于声明Uint类型的返回值
+
+    // In file ChecksumAccumulator.scala
+    class ChecksumAccumulator {
+      private var sum = 0
+      def add(b: Byte) { sum += b }
+      def checksum(): Int = ~(sum & 0xFF) + 1
+    }
+
+如果大括号前面有等号，那么该方法的返回值类型就是最后一个语句的取值类型。（这么搞，岂不是不能提前确定方法的返回类型？如果有多个返回分支的话）
+
+4.2 Semicolon inference 
+只有在一行里写多个语句的时候才需要用;号，否则一般可以不写。这点跟ruby也是一样
+
+4.3 Singleton objects 
+ that classes in Scala cannot have static members.类不能含有静态成员
+scala提供单体对象。
+
+ A singleton object definition looks like a class definition, except instead of the keyword class you use the keyword object
+
+When a singleton object shares the same name with a class, it is called that class's companion object. You must define both the class and its companion object in the same source file. The class is called the companion class of the singleton object. A class and its companion object can access each other's private members.
+
+Defining a singleton object doesn't define a type (at the Scala level of abstraction)
+One difference between classes and singleton objects is that singleton objects cannot take parameters, whereas classes can.In particular, a singleton object is initialized the first time some code accesses it.
+
+A singleton object that does not share the same name with a companion class is called a standalone object. You can use standalone objects for many purposes, including collecting related utility methods together, or defining an entry point to a Scala application.
+
+
+4.4 A Scala application 
+
+To run a Scala program, you must supply the name of a standalone singleton object with a main method that takes one parameter, an Array[String], and has a result type of Unit. Any standalone object with a main method of the proper signature can be used as the entry point into an application.
+
+    // In file Summer.scala
+    import ChecksumAccumulator.calculate
+  
+    object Summer {
+      def main(args: Array[String]) {
+        for (arg <- args)
+          println(arg +": "+ calculate(arg))
+      }
+    }
+
+
+
+Note
+
+Scala implicitly imports members of packages java.lang and scala, as well as the members of a singleton object named Predef, into every Scala source file. Predef, which resides in package scala, contains many useful methods.
+
+
+在scala源文件，不像java那样，要求源文件里必须有一个跟文件名同名的class
+不过推崇的做法还是仿照java的规范一点
+
+4.5 The Application trait 
+
+    import ChecksumAccumulator.calculate
+  
+    object FallWinterSpringSummer extends Application {
+  
+      for (season <- List("fall", "winter", "spring"))
+        println(season +": "+ calculate(season))
+    }
+
+
+
+
